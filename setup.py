@@ -16,7 +16,7 @@ setup(
     keywords='qdc garmin converter',
     author_email='interlark@gmail.com',
     url='http://github.com/interlark/qdc-converter',
-    version='1.0',
+    version='1.1',
     packages=find_packages(),
     install_requires=install_requires,
     scripts=['qdc-converter'],

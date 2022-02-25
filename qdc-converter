@@ -242,7 +242,7 @@ def convert(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
     
     elif output_path_ext.lower() == '.csv':
         # CSV table
-        with open(output_path, 'w') as f_csv:
+        with open(output_path, 'w', newline='') as f_csv:
             writer = csv.writer(f_csv, delimiter=csv_delimiter)
 
             # write header
