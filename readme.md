@@ -1,3 +1,5 @@
+[Русский](https://github.com/interlark/qdc-converter/blob/main/readme.md) | [English](https://github.com/interlark/qdc-converter/blob/main/readme.en.md)
+
 # QDC Конвертер
 
 Конвертер ***.qdc** *(Garmin QuickDraw Contours)* в таблицу ***.csv** *(CSV таблица)* или ***.grd** *(Растр ESRI ASCII Grid)*
