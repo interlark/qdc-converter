@@ -2,11 +2,16 @@ from setuptools import setup
 import os
 
 here = os.path.dirname(os.path.realpath(__file__))
-with open(os.path.join(here, 'requirements.txt')) as f:
-    install_requires = f.read().splitlines()
 
 with open(os.path.join(here, 'readme.md')) as f:
     long_description = f.read()
+
+deps = [
+    'numpy',
+    'tqdm',
+    'click',
+    'click-option-group',
+]
 
 setup(
     name='qdc-converter',
@@ -20,7 +25,7 @@ setup(
     packages=['qdc-converter'],
     package_dir={'qdc-converter': here},
     package_data={'qdc-converter': [os.path.join(here, 'locale', '*', 'LC_MESSAGES', '*.mo')]},
-    install_requires=install_requires,
+    install_requires=deps,
     scripts=['qdc-converter'],
     license='MIT',
     classifiers=[

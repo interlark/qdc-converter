@@ -1,4 +1,0 @@
-numpy
-tqdm
-click
-click-option-group
