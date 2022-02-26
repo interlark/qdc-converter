@@ -1,6 +1,6 @@
 # QDC Конвертер
 
-Конвертер **Garmin QuickDraw QDC файлов** в таблицу ***.csv (CSV таблица)** или ***.grd (Растр ESRI ASCII Grid)**
+Конвертер ***.qdc** *(Garmin QuickDraw Contours)* в таблицу ***.csv** *(CSV таблица)* или ***.grd** *(Растр ESRI ASCII Grid)*
 
 # Установка
 ```bash
@@ -26,10 +26,12 @@ pip install qdc-converter
 ```bash
 qdc-converter --help
 ```
-```bash
+```
 Usage: qdc-converter [OPTIONS]
 
-  QDC конвертер.
+  QDC Конвертер.
+
+  Конвертер Garmin's QDC файлов в CSV или GRD.
 
 Options:
   Основные параметры:             Ключевые параметры конвертера
@@ -50,7 +52,7 @@ Options:
     -dy, --y-correction FLOAT     Корректировка Y.
     -dz, --z-correction FLOAT     Корректировка Z.
   CSV Параметры:                  Параметры касающиеся записи CSV таблицы
-    -csvd, --csv-delimiter TEXT   CSV разделитель значений колонок.
+    -csvd, --csv-delimiter TEXT   CSV разделитель значений колонок (по-умолчанию ",").
     -csvs, --csv-skip-headers     Не записывать заголовок таблицы.
     -csvy, --csv-yxz              Изменить порядок записи с X,Y,Z на Y,X,Z в
                                   CSV таблице.

@@ -4,14 +4,18 @@
 # Special credits to an author of an original VBA script.
 
 import csv
+import gettext
 import os
 import struct
 from types import SimpleNamespace
+from importlib.util import find_spec
 
 import click
 from click_option_group import optgroup
 import numpy as np
 from tqdm import tqdm
+
+SCRIPT_DIRPATH = os.path.dirname(os.path.realpath(__file__))
 
 LAYER_PARAMETERS = {
     0: {
@@ -100,9 +104,22 @@ LAYER_PARAMETERS = {
     },
 }
 
+# i18n
+locale_dir = os.path.join(SCRIPT_DIRPATH, 'locale')
+if not os.path.isdir(locale_dir):
+    # find locale in module path
+    qdc_converter_module = find_spec('qdc-converter')
+    if qdc_converter_module:
+        for path in qdc_converter_module.submodule_search_locations:
+            locale_path = os.path.join(path, 'locale')
+            if os.path.exists(locale_path):
+                locale_dir = locale_path
+
+gettext.install('messages', locale_dir)
+
 def get_files_recursively(dir_path, exts):
     '''
-    Рекурсивный поиск файлов с расширениеми указанными в :param exts:.
+    Recursively search for files with the extension specified in :param exts:.
     '''
     if type(exts) not in (list, tuple):
         exts = (exts,)
@@ -114,28 +131,25 @@ def get_files_recursively(dir_path, exts):
             result.append(full_path_f)
     return result
 
-@click.command()
-@optgroup.group('Основные параметры', help='Ключевые параметры конвертера')
-@optgroup.option('--qdc-folder-path', '-i', required=True, type=click.Path(exists=True, resolve_path=True, file_okay=False, dir_okay=True), help='Путь до папки со вложенными контурами QuickDraw Contours (QDC).')
-@optgroup.option('--output-path', '-o', required=True, type=click.Path(exists=False, resolve_path=True, file_okay=True, dir_okay=False), help='Путь до сконвертированного файла (*.csv или *.grd).')
-@optgroup.option('--layer', '-l', required=True, type=click.IntRange(0, 5), metavar='[0,1,2,3,4,5]', help='Слой данных (0 - Raw user data, 1 - Recommended).')
-@optgroup.option('--validity-codes', '-vc', is_flag=True, help='Записывать код качества вместо глубины.')
-@optgroup.option('--quite', '-q', is_flag=True, help='"Молчаливый режим"')
-@optgroup.group('Параметры корректировки', help='Корректировки')
-@optgroup.option('--x-correction', '-dx', type=click.FLOAT, default=0.0, help='Корректировка X.')
-@optgroup.option('--y-correction', '-dy', type=click.FLOAT, default=0.0, help='Корректировка Y.')
-@optgroup.option('--z-correction', '-dz', type=click.FLOAT, default=0.0, help='Корректировка Z.')
-@optgroup.group('CSV Параметры', help='Параметры касающиеся записи CSV таблицы')
-@optgroup.option('--csv-delimiter', '-csvd', type=click.STRING, default=',', help='CSV разделитель значений колонок.')
-@optgroup.option('--csv-skip-headers', '-csvs', is_flag=True, help='Не записывать заголовок таблицы.')
-@optgroup.option('--csv-yxz', '-csvy', is_flag=True, help='Изменить порядок записи с X,Y,Z на Y,X,Z в CSV таблице.')
+@click.command(help=_('QDC Converter.\n\nConverter of Garmin\'s QDC files into CSV or GRD.'))
+@optgroup.group(_('Main parameters'), help=_('Key parameters of the converter'))
+@optgroup.option('--qdc-folder-path', '-i', required=True, type=click.Path(exists=True, resolve_path=True, file_okay=False, dir_okay=True), help=_('Path to folder with QuickDraw Contours (QDC) inside.'))
+@optgroup.option('--output-path', '-o', required=True, type=click.Path(exists=False, resolve_path=True, file_okay=True, dir_okay=False), help=_('Path to the result file (*.csv or *.grd).'))
+@optgroup.option('--layer', '-l', required=True, type=click.IntRange(0, 5), metavar='[0,1,2,3,4,5]', help=_('Data layer (0 - Raw user data, 1 - Recommended).'))
+@optgroup.option('--validity-codes', '-vc', is_flag=True, help=_('Write validity code instead of depth.'))
+@optgroup.option('--quite', '-q', is_flag=True, help=_('"Quite mode"'))
+@optgroup.group(_('Correction parameters'), help=_('Corrections'))
+@optgroup.option('--x-correction', '-dx', type=click.FLOAT, default=0.0, help=_('Correction of X.'))
+@optgroup.option('--y-correction', '-dy', type=click.FLOAT, default=0.0, help=_('Correction of Y.'))
+@optgroup.option('--z-correction', '-dz', type=click.FLOAT, default=0.0, help=_('Correction of Z.'))
+@optgroup.group(_('CSV parameters'), help=_('Parameters related to CSV'))
+@optgroup.option('--csv-delimiter', '-csvd', type=click.STRING, default=',', help=_('CSV delimiter (default ",").'))
+@optgroup.option('--csv-skip-headers', '-csvs', is_flag=True, help=_('Do not write header.'))
+@optgroup.option('--csv-yxz', '-csvy', is_flag=True, help=_('Change column order from X,Y,Z to Y,X,Z.'))
 def convert(qdc_folder_path, output_path, layer, validity_codes, quite, x_correction, y_correction, z_correction, csv_delimiter, csv_skip_headers, csv_yxz):
-    '''
-    QDC конвертер.
-    '''
     output_path_ext = os.path.splitext(output_path)[-1]
     if output_path_ext.lower() not in ('.csv', '.grd'):
-        raise click.UsageError('Расширение выходного файла должны быть *.csv (CSV таблица) или *.grd (ESRI ASCII grid)')
+        raise click.UsageError(_('Output file extension must be *.csv (CSV table) or *.grd (ESRI ASCII grid)'))
     
     layer_parameters = SimpleNamespace(**LAYER_PARAMETERS[layer])
     qdc_files = get_files_recursively(qdc_folder_path, 'qdc')
@@ -160,14 +174,14 @@ def convert(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
 
     if x_min == 32000 or y_min == 32000 \
         or x_max == -32000 or y_max == -32000:
-        raise ValueError('Не найдено валидных QDC файлов!')
+        raise ValueError(_('No valid QDC files found!'))
 
     x_size = (x_max - x_min + 1) * layer_parameters.l_size - 1
     y_size = (y_max - y_min + 1) * layer_parameters.l_size - 1
     arr_depth = np.zeros((x_size + 1, y_size + 1), dtype=np.int16)
 
     # calculate depth array
-    for qdc_file in tqdm(qdc_files, desc='Подсчет карты глубины', disable=quite):
+    for qdc_file in tqdm(qdc_files, desc=_('Calculating depth map'), disable=quite):
         qdc_file_size = os.path.getsize(qdc_file)
         if qdc_file_size in (layer_parameters.f_size1, layer_parameters.f_size2, \
                 layer_parameters.f_size3, layer_parameters.f_size4):
@@ -224,7 +238,7 @@ def convert(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
             f_grd.write(f'CELLSIZE {layer_parameters.a_step}\n')
             f_grd.write(f'NODATA_VALUE 0\n')
 
-            for j in tqdm(range(y_size, -1, -1), desc='Сохранение растра Esri ASCII'):
+            for j in tqdm(range(y_size, -1, -1), desc=_('Saving Esri ASCII raster')):
                 row_values = []
                 for i in range(x_size + 1):
                     if validity_codes:
@@ -259,7 +273,7 @@ def convert(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
                         writer.writerow(['X', 'Y', 'Depth(m)'])
 
             # write data
-            for j in tqdm(range(y_size, -1, -1), desc='Сохранение CSV таблицы', disable=quite):
+            for j in tqdm(range(y_size, -1, -1), desc=_('Saving CSV table'), disable=quite):
                 for i in range(x_size + 1):
                     if arr_depth[i, j] > 0:  # skip all 0 values
                         if validity_codes:

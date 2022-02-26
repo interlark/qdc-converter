@@ -1,6 +1,6 @@
 # QDC Converter
 
-Converter of **Garmin QuickDraw QDC files** into ***.csv (CSV table)** or ***.grd (ESRI ASCII Grid Raster)**
+Converter of ***.qdc** *(Garmin QuickDraw Contours)* files into ***.csv** *(CSV table)* or ***.grd** *(ESRI ASCII Grid Raster)*
 
 # Install
 ```bash
@@ -26,10 +26,12 @@ Base parameters: **-i**, **-o** and **-l**.
 ```bash
 qdc-converter --help
 ```
-```bash
+```
 Usage: qdc-converter [OPTIONS]
 
   QDC converter.
+
+  Converter of Garmin's QDC files into CSV or GRD.
 
 Options:
   Main parameters:                Key parameters of the converter

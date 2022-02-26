@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 import os
 
 here = os.path.dirname(os.path.realpath(__file__))
@@ -16,8 +16,10 @@ setup(
     keywords='qdc garmin converter',
     author_email='interlark@gmail.com',
     url='http://github.com/interlark/qdc-converter',
-    version='1.1',
-    packages=find_packages(),
+    version='1.2',
+    packages=['qdc-converter'],
+    package_dir={'qdc-converter': here},
+    package_data={'qdc-converter': [os.path.join(here, 'locale', '*', 'LC_MESSAGES', '*.mo')]},
     install_requires=install_requires,
     scripts=['qdc-converter'],
     license='MIT',
