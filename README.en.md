@@ -4,7 +4,7 @@
 
 Converter of ***.qdc** *(Garmin QuickDraw Contours)* files into ***.csv** *(CSV table)* or ***.grd** *(ESRI ASCII Grid Raster)*
 
-![screenshot](assets/screenshot-en.png)
+![screenshot](https://raw.githubusercontent.com/interlark/qdc-converter/main/assets/screenshot-en.png)
 
 # Install
 - Download [release](https://github.com/interlark/qdc-converter/releases/latest) and run.
