@@ -76,24 +76,12 @@ jobs:
         echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
       shell: bash
 
-    - uses: actions/checkout@v3
-
-    - name: Get Changelog Entry
-      id: changelog_reader
-      uses: mindsers/changelog-reader-action@v2
-      with:
-        version: ${{ steps.get_version.outputs.version }}
-        path: ./CHANGELOG.md
-
     - uses: actions/download-artifact@v3
 
     - uses: ncipollo/release-action@v1.10.0
       with:
-        tag: v${{ steps.changelog_reader.outputs.version }}
-        name: QDCConverter ${{ steps.changelog_reader.outputs.version }}
-        body: ${{ steps.changelog_reader.outputs.changes }}
-        prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
-        draft: ${{ steps.changelog_reader.outputs.status == 'unreleased' }}
+        tag: v${{ steps.get_version.outputs.version }}
+        name: QDCConverter ${{ steps.get_version.outputs.version }}
         artifacts: "dist-*/*"
         allowUpdates: true
         token: ${{ secrets.GITHUB_TOKEN }}
