@@ -1,3 +1,5 @@
+import multiprocessing as mp
+
 import click
 from click_option_group import optgroup
 
@@ -11,6 +13,9 @@ if GUI_ENABLED:
 
 # Install localization
 install_i18n()
+
+# Add multiprocessing support on Windows for Pyinstaller's builds.
+mp.freeze_support()
 
 
 @click.version_option(version=version)
