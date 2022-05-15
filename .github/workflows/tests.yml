@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    paths:
+    paths-ignore:
       - 'qdc_converter/data/**'
       - 'assets/**'
 
