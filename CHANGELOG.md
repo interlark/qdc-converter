@@ -15,7 +15,8 @@
 - Первая версия.
 
 
-[Невошедшее]: https://github.com/interlark/qdc-converter/compare/v2.0...HEAD
+[Невошедшее]: https://github.com/interlark/qdc-converter/compare/v2.1...HEAD
+[2.1]: https://github.com/interlark/qdc-converter/compare/v2.0...v2.1
 [2.0]: https://github.com/interlark/qdc-converter/compare/v1.2...v2.0
 [1.2]: https://github.com/interlark/qdc-converter/releases/tag/v1.2
 
