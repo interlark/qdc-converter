@@ -8,6 +8,7 @@ from .version import version
 if GUI_ENABLED:
     from .gui import run_gui
 
+
 # Install localization
 install_i18n()
 

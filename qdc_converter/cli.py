@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 from .utils import get_files_recursively, patch_tqdm, print_error
 
+
 LAYER_PARAMETERS = {
     0: {
         'a_step': 90 / 2 ** 22,
