@@ -1,0 +1,3 @@
+graft qdc_converter
+recursive-exclude * *.pyc *.pyo *.pot *.po
+include README.en.md

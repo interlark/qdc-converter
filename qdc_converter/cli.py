@@ -1,21 +1,12 @@
-#!/usr/bin/env python3
-
-# QDC Converter
-# Special credits to an author of an original VBA script.
-
 import csv
-import gettext
 import os
 import struct
 from types import SimpleNamespace
-from importlib.util import find_spec
 
-import click
-from click_option_group import optgroup
 import numpy as np
 from tqdm import tqdm
 
-SCRIPT_DIRPATH = os.path.dirname(os.path.realpath(__file__))
+from .utils import get_files_recursively, patch_tqdm, print_error
 
 LAYER_PARAMETERS = {
     0: {
@@ -104,92 +95,58 @@ LAYER_PARAMETERS = {
     },
 }
 
-# i18n
-locale_dir = os.path.join(SCRIPT_DIRPATH, 'locale')
-if not os.path.isdir(locale_dir):
-    # find locale in module path
-    qdc_converter_module = find_spec('qdc-converter')
-    if qdc_converter_module:
-        for path in qdc_converter_module.submodule_search_locations:
-            locale_path = os.path.join(path, 'locale')
-            if os.path.exists(locale_path):
-                locale_dir = locale_path
 
-gettext.install('messages', locale_dir)
+def run_cli(qdc_folder_path, output_path, layer, validity_codes, quite, x_correction, y_correction, z_correction,
+            csv_delimiter, csv_skip_headers, csv_yxz, message_queue=None):
+    # Patch tqdm to duplicate messages up to the passed message queue.
+    if message_queue:
+        patch_tqdm(tqdm, message_queue)
 
-def get_files_recursively(dir_path, exts):
-    '''
-    Recursively search for files with the extension specified in :param exts:.
-    '''
-    if type(exts) not in (list, tuple):
-        exts = (exts,)
-    result = []
-    files = [os.path.join(dp, f) for dp, dn, fn in os.walk(dir_path) for f in fn]
-    for f in files:
-        if any(f.endswith(ext) for ext in exts):
-            full_path_f = os.path.join(dir_path, f)
-            result.append(full_path_f)
-    return result
-
-@click.command(help=_('QDC Converter.\n\nConverter of Garmin\'s QDC files into CSV or GRD.'))
-@optgroup.group(_('Main parameters'), help=_('Key parameters of the converter'))
-@optgroup.option('--qdc-folder-path', '-i', required=True, type=click.Path(exists=True, resolve_path=True, file_okay=False, dir_okay=True), help=_('Path to folder with QuickDraw Contours (QDC) inside.'))
-@optgroup.option('--output-path', '-o', required=True, type=click.Path(exists=False, resolve_path=True, file_okay=True, dir_okay=False), help=_('Path to the result file (*.csv or *.grd).'))
-@optgroup.option('--layer', '-l', required=True, type=click.IntRange(0, 5), metavar='[0,1,2,3,4,5]', help=_('Data layer (0 - Raw user data, 1 - Recommended).'))
-@optgroup.option('--validity-codes', '-vc', is_flag=True, help=_('Write validity code instead of depth.'))
-@optgroup.option('--quite', '-q', is_flag=True, help=_('"Quite mode"'))
-@optgroup.group(_('Correction parameters'), help=_('Corrections'))
-@optgroup.option('--x-correction', '-dx', type=click.FLOAT, default=0.0, help=_('Correction of X.'))
-@optgroup.option('--y-correction', '-dy', type=click.FLOAT, default=0.0, help=_('Correction of Y.'))
-@optgroup.option('--z-correction', '-dz', type=click.FLOAT, default=0.0, help=_('Correction of Z.'))
-@optgroup.group(_('CSV parameters'), help=_('Parameters related to CSV'))
-@optgroup.option('--csv-delimiter', '-csvd', type=click.STRING, default=',', help=_('CSV delimiter (default ",").'))
-@optgroup.option('--csv-skip-headers', '-csvs', is_flag=True, help=_('Do not write header.'))
-@optgroup.option('--csv-yxz', '-csvy', is_flag=True, help=_('Change column order from X,Y,Z to Y,X,Z.'))
-def convert(qdc_folder_path, output_path, layer, validity_codes, quite, x_correction, y_correction, z_correction, csv_delimiter, csv_skip_headers, csv_yxz):
+    # Some arguments validation
     output_path_ext = os.path.splitext(output_path)[-1]
     if output_path_ext.lower() not in ('.csv', '.grd'):
-        raise click.UsageError(_('Output file extension must be *.csv (CSV table) or *.grd (ESRI ASCII grid)'))
-    
+        print_error(_('Output file extension must be *.csv (CSV table) or *.grd (ESRI ASCII grid)'), message_queue)
+
     layer_parameters = SimpleNamespace(**LAYER_PARAMETERS[layer])
-    qdc_files = get_files_recursively(qdc_folder_path, 'qdc')
-    
-    # calculate boundaries
+    qdc_files = get_files_recursively(qdc_folder_path, '.qdc')
+
+    # Calculate boundaries
     x_min, y_min = 32000, 32000
     x_max, y_max = -32000, -32000
     for qdc_file in qdc_files:
         qdc_file_size = os.path.getsize(qdc_file)
-        if qdc_file_size in (layer_parameters.f_size1, layer_parameters.f_size2, \
-                layer_parameters.f_size3, layer_parameters.f_size4):
+        if qdc_file_size in (layer_parameters.f_size1, layer_parameters.f_size2,
+                             layer_parameters.f_size3, layer_parameters.f_size4):
             with open(qdc_file, 'rb') as f_qdc:
                 f_qdc.seek(164)
                 val = struct.unpack('<h', f_qdc.read(2))[0]
                 x_min = min(val, x_min)
                 x_max = max(val, x_max)
-                
+
                 f_qdc.seek(160)
                 val = struct.unpack('<h', f_qdc.read(2))[0]
                 y_min = min(val, y_min)
                 y_max = max(val, y_max)
 
     if x_min == 32000 or y_min == 32000 \
-        or x_max == -32000 or y_max == -32000:
-        raise ValueError(_('No valid QDC files found!'))
+       or x_max == -32000 or y_max == -32000:
+        print_error(_('No valid QDC files found!'), message_queue)
+        return 1
 
     x_size = (x_max - x_min + 1) * layer_parameters.l_size - 1
     y_size = (y_max - y_min + 1) * layer_parameters.l_size - 1
     arr_depth = np.zeros((x_size + 1, y_size + 1), dtype=np.int16)
 
-    # calculate depth array
+    # Calculate depth array
     for qdc_file in tqdm(qdc_files, desc=_('Calculating depth map'), disable=quite):
         qdc_file_size = os.path.getsize(qdc_file)
-        if qdc_file_size in (layer_parameters.f_size1, layer_parameters.f_size2, \
-                layer_parameters.f_size3, layer_parameters.f_size4):
+        if qdc_file_size in (layer_parameters.f_size1, layer_parameters.f_size2,
+                             layer_parameters.f_size3, layer_parameters.f_size4):
             with open(qdc_file, 'rb') as f_qdc:
                 f_qdc.seek(164)
                 val = struct.unpack('<h', f_qdc.read(2))[0]
                 x_orig = (val - x_min) * layer_parameters.l_size2
-                
+
                 f_qdc.seek(160)
                 val = struct.unpack('<h', f_qdc.read(2))[0]
                 y_orig = (val - y_min) * layer_parameters.l_size2
@@ -210,14 +167,14 @@ def convert(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
                                 x_abs = xx * 32 + x + x_orig
                                 y_abs = yy * 32 + y + y_orig
                                 f_qdc.seek(i + 1)
-                                val_code = struct.unpack('<h', f_qdc.read(2))[0]  # read validity code
-                                
-                                if validity_codes:  # write validity codes to array instead of depth
+                                val_code = struct.unpack('<h', f_qdc.read(2))[0]  # Read validity code
+
+                                if validity_codes:  # Write validity codes to array instead of depth
                                     arr_depth[x_abs, y_abs] = val_code
                                 else:
                                     if val_code != 0:
                                         f_qdc.seek(i - 1)
-                                        val_depth = struct.unpack('<h', f_qdc.read(2))[0]  # read depth in cm
+                                        val_depth = struct.unpack('<h', f_qdc.read(2))[0]  # Read depth in cm
                                         arr_depth[x_abs, y_abs] = val_depth
 
                                 i += 4
@@ -227,7 +184,7 @@ def convert(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
 
     f_fix = lambda x: np.sign(x) * np.int16(np.abs(x))
 
-    # save depth array to *.csv or *.grd
+    # Save depth array to *.csv or *.grd
     if output_path_ext.lower() == '.grd':
         # ESRI ASCII grid
         with open(output_path, 'w') as f_grd:
@@ -236,7 +193,7 @@ def convert(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
             f_grd.write(f'XLLCORNER {x_orig}\n')
             f_grd.write(f'YLLCORNER {y_orig}\n')
             f_grd.write(f'CELLSIZE {layer_parameters.a_step}\n')
-            f_grd.write(f'NODATA_VALUE 0\n')
+            f_grd.write('NODATA_VALUE 0\n')
 
             for j in tqdm(range(y_size, -1, -1), desc=_('Saving Esri ASCII raster')):
                 row_values = []
@@ -249,17 +206,19 @@ def convert(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
                     row_values.append(z + z_correction)
                 f_grd.write(' '.join(str(x) for x in row_values) + '\n')
 
-        # write projection file
+        # Write projection file
         output_path_prj = output_path[:-4] + '.prj'
         with open(output_path_prj, 'w') as f_prj:
-            f_prj.write('GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]')
-    
+            f_prj.write('GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",'
+                        'SPHEROID["WGS_1984",6378137.0,298.257223563]],'
+                        'PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]')
+
     elif output_path_ext.lower() == '.csv':
         # CSV table
         with open(output_path, 'w', newline='') as f_csv:
             writer = csv.writer(f_csv, delimiter=csv_delimiter)
 
-            # write header
+            # Write header
             if not csv_skip_headers:
                 if csv_yxz:
                     if validity_codes:
@@ -272,23 +231,21 @@ def convert(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
                     else:
                         writer.writerow(['X', 'Y', 'Depth(m)'])
 
-            # write data
+            # Write data
             for j in tqdm(range(y_size, -1, -1), desc=_('Saving CSV table'), disable=quite):
                 for i in range(x_size + 1):
-                    if arr_depth[i, j] > 0:  # skip all 0 values
+                    if arr_depth[i, j] > 0:  # Skip all 0 values
                         if validity_codes:
                             t_val = f_fix(arr_depth[i, j] / 4096)
                             z = t_val * 10 + (arr_depth[i, j] - t_val * 4096) / 256
                         else:
                             z = arr_depth[i, j] / 100
-                         
-                        x = x_orig + layer_parameters.a_step / 2 + i * layer_parameters.a_step  # adding a_step / 2 to move point to the middle of the cell extent
-                        y = y_orig + layer_parameters.a_step / 2 + j * layer_parameters.a_step  # adding a_step / 2 to move point to the middle of the cell extent
-                        
+
+                        # Adding a_step / 2 to move point to the middle of the cell extent
+                        x = x_orig + layer_parameters.a_step / 2 + i * layer_parameters.a_step
+                        y = y_orig + layer_parameters.a_step / 2 + j * layer_parameters.a_step
+
                         if csv_yxz:
                             writer.writerow([y + y_correction, x + x_correction, z + z_correction])
                         else:
                             writer.writerow([x + x_correction, y + y_correction, z + z_correction])
-
-if __name__ == '__main__':
-    convert()

@@ -1,3 +1,8 @@
-dist*/
+dist/
 .vscode/
 venv/
+*.csv
+*.grd
+*.egg-info/
+__pycache__/
+build/

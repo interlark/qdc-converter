@@ -1,12 +1,38 @@
-[Русский](https://github.com/interlark/qdc-converter/blob/main/readme.md) | [English](https://github.com/interlark/qdc-converter/blob/main/readme.en.md)
+[Русский](https://github.com/interlark/qdc-converter/blob/main/README.md) | [English](https://github.com/interlark/qdc-converter/blob/main/README.en.md)
 
 # QDC Converter
 
 Converter of ***.qdc** *(Garmin QuickDraw Contours)* files into ***.csv** *(CSV table)* or ***.grd** *(ESRI ASCII Grid Raster)*
 
+![screenshot](assets/screenshot-en.png)
+
 # Install
+- Download [release](https://github.com/interlark/qdc-converter/releases/latest) and run.
+
+- Install from PyPI:
 ```bash
+# CLI
 pip install qdc-converter
+# CLI + GUI
+pip install qdc-converter[gui]
+```
+
+- Install from repository:
+```bash
+git clone https://github.com/interlark/qdc-converter
+cd qdc-converter
+
+python -m venv venv
+
+# Windows
+.\venv\Scripts\activate.bat
+# Linux, MacOS
+. venv/bin/active
+
+# CLI
+pip install .
+# CLI + GUI
+pip install .[gui]
 ```
 
 # Usage

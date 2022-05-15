@@ -1,0 +1,126 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*'
+
+jobs:
+  build:
+    name: Build
+
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-18.04  # Old Ubuntu version for old glibc
+            dist: linux
+
+          - os: macos-10.15
+            dist: macos
+
+          - os: windows-2019
+            dist: windows
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=version::${GITHUB_REF#refs/tags/}
+      shell: bash
+
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -e .[gui,dev]
+
+    - name: Build standalone app
+      run: |
+        python setup.py build_standalone
+
+    - name: Archive Windows distributive
+      if: matrix.dist == 'windows'
+      run: pushd dist && 7z a ../QDCConverter-${{steps.get_version.outputs.version}}-${{matrix.dist}}.zip  QDCConverter.exe && popd
+      shell: bash
+
+    - name: Archive Linux/MacOS distributive
+      if: matrix.dist != 'windows'
+      run: tar -C dist/ -czvf QDCConverter-${{steps.get_version.outputs.version}}-${{matrix.dist}}.tar.gz QDCConverter
+      shell: bash
+
+    - name: Upload distributive
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist-${{ matrix.dist }}
+        path: QDCConverter-*
+        retention-days: 5
+
+  release:
+    name: Release
+
+    needs: [build]
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Get the version
+      id: get_version
+      run: |
+        echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
+      shell: bash
+
+    - uses: actions/checkout@v3
+
+    - name: Get Changelog Entry
+      id: changelog_reader
+      uses: mindsers/changelog-reader-action@v2
+      with:
+        version: ${{ steps.get_version.outputs.version }}
+        path: ./CHANGELOG.md
+
+    - uses: actions/download-artifact@v3
+
+    - uses: ncipollo/release-action@v1.10.0
+      with:
+        tag: v${{ steps.changelog_reader.outputs.version }}
+        name: QDCConverter ${{ steps.changelog_reader.outputs.version }}
+        body: ${{ steps.changelog_reader.outputs.changes }}
+        prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
+        draft: ${{ steps.changelog_reader.outputs.status == 'unreleased' }}
+        artifacts: "dist-*/*"
+        allowUpdates: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    name: Deploy
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install setuptools twine
+        python -m pip install -e .[dev]
+
+    - name: Build and publish
+      env:
+        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        python setup.py sdist bdist_wheel
+        twine upload dist/*

@@ -18,8 +18,8 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-msgid   "QDC Converter.\n\nConverter of Garmin's QDC files into CSV or GRD."
-msgstr  "QDC Конвертер.\n\nКонвертер Garmin's QDC файлов в CSV или GRD."
+msgid "QDC Converter.\n\nConverter of Garmin's QDC files into CSV or GRD."
+msgstr "QDC Конвертер.\n\nКонвертер Garmin's QDC файлов в CSV или GRD."
 
 msgid "Main parameters"
 msgstr "Основные параметры"
@@ -28,7 +28,7 @@ msgid "Key parameters of the converter"
 msgstr "Ключевые параметры конвертера"
 
 msgid "Path to folder with QuickDraw Contours (QDC) inside."
-msgstr "Путь до папки со вложенными контурами QuickDraw Contours (QDC)."
+msgstr "Путь до папки с контурами QuickDraw Contours (QDC)."
 
 msgid "Path to the result file (*.csv or *.grd)."
 msgstr "Путь до сконвертированного файла (*.csv или *.grd)."
@@ -64,7 +64,7 @@ msgid "Parameters related to CSV"
 msgstr "Параметры касающиеся записи CSV таблицы"
 
 msgid "CSV delimiter (default \",\")."
-msgstr "CSV разделитель значений колонок (по-умолчанию \",\")."
+msgstr "CSV разделитель значений (по-умолчанию \",\")."
 
 msgid "Do not write header."
 msgstr "Не записывать заголовок таблицы."
@@ -76,10 +76,7 @@ msgid "QDC Converter."
 msgstr "QDC Конвертер."
 
 msgid "Output file extension must be *.csv (CSV table) or *.grd (ESRI ASCII grid)"
-msgstr "Расширение выходного файла должны быть *.csv (CSV таблица) или *.grd (ESRI ASCII grid)"
-
-msgid "No valid QDC files found!"
-msgstr "Не найдено валидных QDC файлов!"
+msgstr "Расширение выходного файла должно быть *.csv (CSV таблица) или *.grd (ESRI ASCII grid)"
 
 msgid "Calculating depth map"
 msgstr "Подсчет карты глубины"
@@ -89,3 +86,30 @@ msgstr "Сохранение растра Esri ASCII"
 
 msgid "Saving CSV table"
 msgstr "Сохранение CSV таблицы"
+
+msgid "Convert"
+msgstr "Запуск"
+
+msgid "Cancel"
+msgstr "Отмена"
+
+msgid "Browse"
+msgstr "Обзор"
+
+msgid "Quit"
+msgstr "Выход"
+
+msgid "Input path is not a folder!"
+msgstr "Указанный путь не является папкой!"
+
+msgid "No *.qdc files found inside input path!"
+msgstr "В указанной папке не обнаружены *.qdc файлы!"
+
+msgid "Error"
+msgstr "Ошибка"
+
+msgid "No valid QDC files found!"
+msgstr "Подходящие QDC файлы не найдены!"
+
+msgid "Options"
+msgstr "Опции"
