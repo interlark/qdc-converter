@@ -17,7 +17,7 @@ with open(os.path.join(here, 'qdc_converter', 'version.py')) as f:
     VERSION = match.group('version')
 
 deps = [
-    'numpy>=1.20.0',
+    'numpy>=1.19.0',
     'tqdm>=4.37.0',
     'click>=4.0.0',
     'click-option-group>=0.5.3',
@@ -89,7 +89,7 @@ setup(
     author_email='interlark@gmail.com',
     url='http://github.com/interlark/qdc-converter',
     version=VERSION,
-    python_requires='>=3.4',
+    python_requires='>=3.6',
     packages=find_packages(),
     include_package_data=True,
     install_requires=deps,
@@ -115,8 +115,6 @@ setup(
         'Operating System :: Unix',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',

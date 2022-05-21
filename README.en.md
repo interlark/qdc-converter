@@ -1,6 +1,10 @@
 [Русский](https://github.com/interlark/qdc-converter/blob/main/README.md) | [English](https://github.com/interlark/qdc-converter/blob/main/README.en.md)
 
 # QDC Converter
+[![Tests](https://github.com/interlark/qdc-converter/actions/workflows/tests.yml/badge.svg)](https://github.com/interlark/qdc-converter/actions/workflows/tests.yml)
+[![PyPi version](https://badgen.net/pypi/v/qdc-converter)](https://pypi.org/project/qdc-converter)
+[![Supported Python versions](https://badgen.net/pypi/python/qdc-converter)](https://pypi.org/project/qdc-converter)
+[![PyPi license](https://badgen.net/pypi/license/qdc-converter)](https://pypi.org/project/qdc-converter)
 
 Converter of ***.qdc** *(Garmin QuickDraw Contours)* files into ***.csv** *(CSV table)* or ***.grd** *(ESRI ASCII Grid Raster)*
 

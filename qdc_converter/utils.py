@@ -1,13 +1,18 @@
-import sys
-import os
 import gettext
 import importlib.util
+import os
+import sys
+import warnings
 
 try:
     import PySimpleGUI as sg
     GUI_ENABLED = True
     del sg
-except ImportError:
+except ImportError as e:
+    if e.name != 'PySimpleGUI':
+        # GUI was installed, but failed to load
+        # due to tkinter missing or other dependencies.
+        warnings.warn('Failed to load GUI: %s' % e.msg)
     GUI_ENABLED = False
 
 
