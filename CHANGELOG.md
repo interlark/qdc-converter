@@ -2,6 +2,10 @@
 
 ## [Невошедшее]
 
+## [2.4] - 22-06-2022
+### Добавлено
+- Многопоточность
+
 ## [2.3] - 22-05-2022
 ### Исправлено
 - Ограничение версий Python в манифесте PyPI
@@ -25,7 +29,8 @@
 - Первая версия.
 
 
-[Невошедшее]: https://github.com/interlark/qdc-converter/compare/v2.3...HEAD
+[Невошедшее]: https://github.com/interlark/qdc-converter/compare/v2.4...HEAD
+[2.4]: https://github.com/interlark/qdc-converter/compare/v2.3...v2.4
 [2.3]: https://github.com/interlark/qdc-converter/compare/v2.2...v2.3
 [2.2]: https://github.com/interlark/qdc-converter/compare/v2.1...v2.2
 [2.1]: https://github.com/interlark/qdc-converter/compare/v2.0...v2.1

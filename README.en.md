@@ -75,10 +75,7 @@ Options:
                                   *.grd).  [required]
 
     -l, --layer [0,1,2,3,4,5]     Data layer (0 - Raw user data, 1 -
-                                  Recommended).  [required]
-
-    -vc, --validity-codes         Write validity code instead of depth.
-    -q, --quite                   "Quite mode"
+                                  Recommended).  [0<=x<=5; required]
   Correction parameters:          Corrections
     -dx, --x-correction FLOAT     Correction of X.
     -dy, --y-correction FLOAT     Correction of Y.
@@ -87,7 +84,10 @@ Options:
     -csvd, --csv-delimiter TEXT   CSV delimiter (default ",").
     -csvs, --csv-skip-headers     Do not write header.
     -csvy, --csv-yxz              Change column order from X,Y,Z to Y,X,Z.
-
+  Other parameters:               Other converter parameters
+    -st, --singlethreaded         Run converter in a single thread.
+    -vc, --validity-codes         Write validity code instead of depth.
+    -q, --quite                   "Quite mode"
+  --version                       Show the version and exit.
   --help                          Show this message and exit.
-
 ```

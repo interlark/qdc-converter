@@ -75,10 +75,7 @@ Options:
                                   *.grd).  [required]
 
     -l, --layer [0,1,2,3,4,5]     Слой данных (0 - Raw user data, 1 -
-                                  Recommended).  [required]
-
-    -vc, --validity-codes         Записывать код качества вместо глубины.
-    -q, --quite                   "Молчаливый режим"
+                                  Recommended).  [0<=x<=5; required]
   Параметры корректировки:        Корректировки
     -dx, --x-correction FLOAT     Корректировка X.
     -dy, --y-correction FLOAT     Корректировка Y.
@@ -88,7 +85,10 @@ Options:
     -csvs, --csv-skip-headers     Не записывать заголовок таблицы.
     -csvy, --csv-yxz              Изменить порядок записи с X,Y,Z на Y,X,Z в
                                   CSV таблице.
-
+  Другие параметры:               Другие параметры конвертера
+    -st, --singlethreaded         Запустить конвертер в одном потоке.
+    -vc, --validity-codes         Записывать код качества вместо глубины.
+    -q, --quite                   "Молчаливый режим"
+  --version                       Show the version and exit.
   --help                          Show this message and exit.
-
 ```
