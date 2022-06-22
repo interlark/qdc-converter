@@ -30,8 +30,6 @@ mp.freeze_support()
 @optgroup.option('--layer', '-l', required=not(GUI_ENABLED),
                  type=click.IntRange(0, 5), metavar='[0,1,2,3,4,5]',
                  help=_('Data layer (0 - Raw user data, 1 - Recommended).'))
-@optgroup.option('--validity-codes', '-vc', is_flag=True, help=_('Write validity code instead of depth.'))
-@optgroup.option('--quite', '-q', is_flag=True, help=_('"Quite mode"'))
 @optgroup.group(_('Correction parameters'), help=_('Corrections'))
 @optgroup.option('--x-correction', '-dx', type=click.FLOAT, default=0.0, help=_('Correction of X.'))
 @optgroup.option('--y-correction', '-dy', type=click.FLOAT, default=0.0, help=_('Correction of Y.'))
@@ -42,6 +40,8 @@ mp.freeze_support()
 @optgroup.option('--csv-yxz', '-csvy', is_flag=True, help=_('Change column order from X,Y,Z to Y,X,Z.'))
 @optgroup.group(_('Other parameters'), help=_('Other converter parameters'))
 @optgroup.option('--singlethreaded', '-st', is_flag=True, help=_('Run converter in a single thread.'))
+@optgroup.option('--validity-codes', '-vc', is_flag=True, help=_('Write validity code instead of depth.'))
+@optgroup.option('--quite', '-q', is_flag=True, help=_('"Quite mode"'))
 def main(qdc_folder_path, output_path, layer, validity_codes, quite, x_correction, y_correction, z_correction,
          csv_delimiter, csv_skip_headers, csv_yxz, singlethreaded):
     multithreaded = not singlethreaded
