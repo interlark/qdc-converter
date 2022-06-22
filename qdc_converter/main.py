@@ -40,13 +40,15 @@ mp.freeze_support()
 @optgroup.option('--csv-delimiter', '-csvd', type=click.STRING, default=',', help=_('CSV delimiter (default ",").'))
 @optgroup.option('--csv-skip-headers', '-csvs', is_flag=True, help=_('Do not write header.'))
 @optgroup.option('--csv-yxz', '-csvy', is_flag=True, help=_('Change column order from X,Y,Z to Y,X,Z.'))
+@optgroup.group(_('Other parameters'), help=_('Other converter parameters'))
+@optgroup.option('--singlethreaded', '-st', is_flag=True, help=_('Run converter in a single thread.'))
 def main(qdc_folder_path, output_path, layer, validity_codes, quite, x_correction, y_correction, z_correction,
-         csv_delimiter, csv_skip_headers, csv_yxz):
+         csv_delimiter, csv_skip_headers, csv_yxz, singlethreaded):
+    multithreaded = not singlethreaded
     if qdc_folder_path is None or output_path is None or layer is None:
         assert GUI_ENABLED
         return run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correction, y_correction,
-                       z_correction, csv_delimiter, csv_skip_headers, csv_yxz)
-
+                       z_correction, csv_delimiter, csv_skip_headers, csv_yxz, multithreaded)
     else:
         return run_cli(qdc_folder_path, output_path, layer, validity_codes, quite, x_correction, y_correction,
-                       z_correction, csv_delimiter, csv_skip_headers, csv_yxz)
+                       z_correction, csv_delimiter, csv_skip_headers, csv_yxz, multithreaded)

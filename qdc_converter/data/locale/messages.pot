@@ -111,3 +111,9 @@ msgstr ""
 
 msgid "Options"
 msgstr ""
+
+msgid "Run converter in a single thread."
+msgstr ""
+
+msgid "Enable multithreading."
+msgstr ""

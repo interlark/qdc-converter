@@ -10,7 +10,7 @@ from .utils import get_files_recursively, image_path
 
 
 def run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correction,
-            y_correction, z_correction, csv_delimiter, csv_skip_headers, csv_yxz):
+            y_correction, z_correction, csv_delimiter, csv_skip_headers, csv_yxz, multithreaded):
     """Run GUI with same passed arguments as CLI."""
     sg.theme('SandyBeach')
 
@@ -30,6 +30,7 @@ def run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
     output_file_title = t(_('Path to the result file (*.csv or *.grd).'), tail=':')
     layer_title = t(_('Data layer (0 - Raw user data, 1 - Recommended).'), tail=':')
     validity_codes_title = t(_('Write validity code instead of depth.'))
+    multithreaded_title = t(_('Enable multithreading.'))
     csv_skip_headers_title = t(_('Do not write header.'))
     csv_yxz_title = t(_('Change column order from X,Y,Z to Y,X,Z.'),)
     window_description = t(window_description)
@@ -71,6 +72,9 @@ def run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
                 ],
                 [
                     sg.Checkbox(validity_codes_title, key='@validity_codes', default=validity_codes),
+                ],
+                [
+                    sg.Checkbox(multithreaded_title, key='@multithreaded', default=multithreaded),
                 ],
             ]),
         ],
@@ -183,7 +187,7 @@ def run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
             swap_buttons(True)
 
             # Run converter process
-            converter_process = mp.Process(target=run_cli, kwargs=args, daemon=True)
+            converter_process = mp.Process(target=run_cli, kwargs=args, daemon=False)
             converter_process.start()
 
             # Restore buttons state on process finished

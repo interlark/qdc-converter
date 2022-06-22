@@ -113,3 +113,9 @@ msgstr "Подходящие QDC файлы не найдены!"
 
 msgid "Options"
 msgstr "Опции"
+
+msgid "Run converter in a single thread."
+msgstr "Запустить конвертер в одном потоке."
+
+msgid "Enable multithreading."
+msgstr "Включить многопоточность."

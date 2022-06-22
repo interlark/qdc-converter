@@ -1,100 +1,72 @@
 import csv
+import multiprocessing as mp
 import os
 import struct
+from functools import partial
 from types import SimpleNamespace
 
 import numpy as np
 from tqdm import tqdm
 
+from .cli import LAYER_PARAMETERS
 from .utils import get_files_recursively, patch_tqdm, print_error
 
+MULTIPROCESSING_BATCH = 64
 
-LAYER_PARAMETERS = {
-    0: {
-        'a_step': 90 / 2 ** 22,
-        'n_sectors': 7,
-        'f_size1': 372736,
-        'f_offset1': 4097,
-        'f_size2': 352256,
-        'f_offset2': 4097,
-        'f_size3': -1,
-        'f_offset3': 0,
-        'f_size4': -1,
-        'f_offset4': 0,
-        'l_size': 256,
-        'l_size2': 256,
-    },
-    1: {
-        'a_step': 90 / 2 ** 21,
-        'n_sectors': 3,
-        'f_size1': 372736,
-        'f_offset1': 266241,
-        'f_size2': 352256,
-        'f_offset2': 266241,
-        'f_size3': 110592,
-        'f_offset3': 4097,
-        'f_size4': 90112,
-        'f_offset4': 4097,
-        'l_size': 128,
-        'l_size2': 128,
-    },
-    2: {
-        'a_step': 90 / 2 ** 20,
-        'n_sectors': 1,
-        'f_size1': 372736,
-        'f_offset1': 331777,
-        'f_size2': 352256,
-        'f_offset2': 331777,
-        'f_size3': 110592,
-        'f_offset3': 69633,
-        'f_size4': 90112,
-        'f_offset4': 69633,
-        'l_size': 64,
-        'l_size2': 64,
-    },
-    3: {
-        'a_step': 90 / 2 ** 19,
-        'n_sectors': 0,
-        'f_size1': 372736,
-        'f_offset1': 348161,
-        'f_size2': 352256,
-        'f_offset2': 348161,
-        'f_size3': 110592,
-        'f_offset3': 86017,
-        'f_size4': 90112,
-        'f_offset4': 86017,
-        'l_size': 32,
-        'l_size2': 32,
-    },
-    4: {
-        'a_step': 90 / 2 ** 18,
-        'n_sectors': 1,
-        'f_size1': 372736,
-        'f_offset1': 352257,
-        'f_size2': -1,
-        'f_offset2': 0,
-        'f_size3': 110592,
-        'f_offset3': 90113,
-        'f_size4': -1,
-        'f_offset4': 0,
-        'l_size': 64,
-        'l_size2': 16,
-    },
-    5: {
-        'a_step': 90 / 2 ** 17,
-        'n_sectors': 0,
-        'f_size1': 372736,
-        'f_offset1': 368641,
-        'f_size2': -1,
-        'f_offset2': 0,
-        'f_size3': 110592,
-        'f_offset3': 106497,
-        'f_size4': -1,
-        'f_offset4': 0,
-        'l_size': 32,
-        'l_size2': 8,
-    },
-}
+
+def shared_depth_array(x_size, y_size):
+    '''
+    Returns shared depth array.
+    '''
+    np_array = np.frombuffer(SHARED_DEPTH_ARRAY.get_obj(),
+                             dtype=np.dtype(SHARED_DEPTH_ARRAY.get_obj()._type_))
+    np_array = np_array.reshape((x_size, y_size))
+    return np_array
+
+
+def calculate_grd_rows(j, validity_codes, x_size, y_size, z_correction):
+    '''
+    Multiprocessing GRD worker.
+    '''
+    result = []
+    f_fix = lambda x: np.sign(x) * np.int16(np.abs(x))
+    arr_depth = shared_depth_array(x_size, y_size)
+
+    for i in range(x_size):
+        if validity_codes:
+            t_val = f_fix(arr_depth[i, j] / 4096)
+            z = t_val * 10 + (arr_depth[i, j] - t_val * 4096) / 256
+        else:
+            z = arr_depth[i, j] / 100
+        result.append(z + z_correction)
+
+    return result
+
+
+def calculate_csv_rows(j, validity_codes, x_size, y_size, x_orig, y_orig, layer):
+    '''
+    Multiprocessing CSV worker.
+    '''
+    result = []
+    f_fix = lambda x: np.sign(x) * np.int16(np.abs(x))
+    arr_depth = shared_depth_array(x_size, y_size)
+    layer_parameters = SimpleNamespace(**LAYER_PARAMETERS[layer])
+
+    for i in range(x_size):
+        if arr_depth[i, j] > 0:  # Skip all 0 values
+            if validity_codes:
+                t_val = f_fix(arr_depth[i, j] / 4096)
+                z = t_val * 10 + (arr_depth[i, j] - t_val * 4096) / 256
+            else:
+                z = arr_depth[i, j] / 100
+
+            # Adding a_step / 2 to move point to the middle of the cell extent
+            x = x_orig + layer_parameters.a_step / 2 + i * layer_parameters.a_step
+            y = y_orig + layer_parameters.a_step / 2 + j * layer_parameters.a_step
+
+            result.append((x, y, z))
+
+    return result
 
 
 def run_cli(qdc_folder_path, output_path, layer, validity_codes, quite, x_correction, y_correction, z_correction,
@@ -103,14 +75,7 @@ def run_cli(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
     if message_queue:
         patch_tqdm(tqdm, message_queue)
 
-    # Invoke multithreaded converter
-    if multithreaded:
-        from .cli_multithreaded import run_cli
-        return run_cli(
-            qdc_folder_path, output_path, layer, validity_codes, quite,
-            x_correction, y_correction, z_correction,
-            csv_delimiter, csv_skip_headers, csv_yxz, message_queue, multithreaded
-        )
+    assert multithreaded
 
     try:
         # Some arguments validation
@@ -191,7 +156,16 @@ def run_cli(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
         x_orig = x_min * 90 / 2 ** 14
         y_orig = y_min * 90 / 2 ** 14
 
-        f_fix = lambda x: np.sign(x) * np.int16(np.abs(x))
+        # Create shared memory array that could be accessed from other
+        # processes instead of pickling and passing it on each fork.
+        global SHARED_DEPTH_ARRAY
+
+        mp_array_typecode = np.ctypeslib.as_ctypes(arr_depth.dtype.type())._type_
+        SHARED_DEPTH_ARRAY = mp.Array(typecode_or_type=mp_array_typecode,
+                                      size_or_initializer=arr_depth.size)
+
+        np_shared_depth_array = shared_depth_array(x_size, y_size)
+        np.copyto(np_shared_depth_array, arr_depth)
 
         # Save depth array to *.csv or *.grd
         if output_path_ext.lower() == '.grd':
@@ -204,16 +178,17 @@ def run_cli(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
                 f_grd.write(f'CELLSIZE {layer_parameters.a_step}\n')
                 f_grd.write('NODATA_VALUE 0\n')
 
-                for j in tqdm(range(y_size - 1, -1, -1), desc=_('Saving Esri ASCII raster')):
-                    row_values = []
-                    for i in range(x_size):
-                        if validity_codes:
-                            t_val = f_fix(arr_depth[i, j] / 4096)
-                            z = t_val * 10 + (arr_depth[i, j] - t_val * 4096) / 256
-                        else:
-                            z = arr_depth[i, j] / 100
-                        row_values.append(z + z_correction)
-                    f_grd.write(' '.join(str(x) for x in row_values) + '\n')
+                grd_rows_worker = partial(
+                    calculate_grd_rows, validity_codes=validity_codes,
+                    x_size=x_size, y_size=y_size, z_correction=z_correction
+                )
+
+                with mp.Pool(processes=mp.cpu_count()) as pool:
+                    rows_it = range(y_size - 1, -1, -1)
+                    pbar = iter(tqdm(rows_it, desc=_('Saving Esri ASCII raster'), disable=quite))
+                    for rows in pool.imap(grd_rows_worker, rows_it, MULTIPROCESSING_BATCH):
+                        next(pbar)
+                        f_grd.write(' '.join(str(x) for x in rows) + '\n')
 
             # Write projection file
             output_path_prj = output_path[:-4] + '.prj'
@@ -241,19 +216,17 @@ def run_cli(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
                             writer.writerow(['X', 'Y', 'Depth(m)'])
 
                 # Write data
-                for j in tqdm(range(y_size - 1, -1, -1), desc=_('Saving CSV table'), disable=quite):
-                    for i in range(x_size):
-                        if arr_depth[i, j] > 0:  # Skip all 0 values
-                            if validity_codes:
-                                t_val = f_fix(arr_depth[i, j] / 4096)
-                                z = t_val * 10 + (arr_depth[i, j] - t_val * 4096) / 256
-                            else:
-                                z = arr_depth[i, j] / 100
+                csv_rows_worker = partial(
+                    calculate_csv_rows, validity_codes=validity_codes,
+                    x_size=x_size, y_size=y_size, x_orig=x_orig, y_orig=y_orig, layer=layer
+                )
 
-                            # Adding a_step / 2 to move point to the middle of the cell extent
-                            x = x_orig + layer_parameters.a_step / 2 + i * layer_parameters.a_step
-                            y = y_orig + layer_parameters.a_step / 2 + j * layer_parameters.a_step
-
+                with mp.Pool(processes=mp.cpu_count()) as pool:
+                    rows_it = range(y_size - 1, -1, -1)
+                    pbar = iter(tqdm(rows_it, desc=_('Saving CSV table'), disable=quite))
+                    for rows in pool.imap(csv_rows_worker, rows_it, MULTIPROCESSING_BATCH):
+                        next(pbar)
+                        for x, y, z in rows:
                             if csv_yxz:
                                 writer.writerow([y + y_correction, x + x_correction, z + z_correction])
                             else:
