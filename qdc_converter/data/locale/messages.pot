@@ -117,3 +117,9 @@ msgstr ""
 
 msgid "Enable multithreading."
 msgstr ""
+
+msgid "Other parameters"
+msgstr ""
+
+msgid "Other converter parameters"
+msgstr ""

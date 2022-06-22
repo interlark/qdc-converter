@@ -119,3 +119,9 @@ msgstr "Запустить конвертер в одном потоке."
 
 msgid "Enable multithreading."
 msgstr "Включить многопоточность."
+
+msgid "Other parameters"
+msgstr "Другие параметры"
+
+msgid "Other converter parameters"
+msgstr "Другие параметры конвертера"
