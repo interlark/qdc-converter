@@ -195,6 +195,9 @@ def run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
                 converter_process.join()
                 swap_buttons(False)
 
+            # Reset progress bar
+            progress_bar.update(current_count=0)
+
             threading.Thread(target=restore_buttons, daemon=True).start()
 
     window.Close()

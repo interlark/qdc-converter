@@ -14,6 +14,11 @@ from .utils import get_files_recursively, patch_tqdm, print_error
 MULTIPROCESSING_BATCH = 64
 
 
+def proc_init(shared_array):
+    global SHARED_DEPTH_ARRAY
+    SHARED_DEPTH_ARRAY = shared_array
+
+
 def shared_depth_array(x_size, y_size):
     '''
     Returns shared depth array.
@@ -183,10 +188,10 @@ def run_cli(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
                     x_size=x_size, y_size=y_size, z_correction=z_correction
                 )
 
-                with mp.Pool(processes=mp.cpu_count()) as pool:
-                    rows_it = range(y_size - 1, -1, -1)
-                    pbar = iter(tqdm(rows_it, desc=_('Saving Esri ASCII raster'), disable=quite))
-                    for rows in pool.imap(grd_rows_worker, rows_it, MULTIPROCESSING_BATCH):
+                with mp.Pool(processes=mp.cpu_count(), initializer=proc_init, initargs=(SHARED_DEPTH_ARRAY,)) as pool:
+                    y_rows = [*range(y_size - 1, -1, -1)]
+                    pbar = iter(tqdm(y_rows, desc=_('Saving Esri ASCII raster'), disable=quite))
+                    for rows in pool.imap(grd_rows_worker, y_rows, MULTIPROCESSING_BATCH):
                         next(pbar)
                         f_grd.write(' '.join(str(x) for x in rows) + '\n')
 
@@ -221,10 +226,10 @@ def run_cli(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
                     x_size=x_size, y_size=y_size, x_orig=x_orig, y_orig=y_orig, layer=layer
                 )
 
-                with mp.Pool(processes=mp.cpu_count()) as pool:
-                    rows_it = range(y_size - 1, -1, -1)
-                    pbar = iter(tqdm(rows_it, desc=_('Saving CSV table'), disable=quite))
-                    for rows in pool.imap(csv_rows_worker, rows_it, MULTIPROCESSING_BATCH):
+                with mp.Pool(processes=mp.cpu_count(), initializer=proc_init, initargs=(SHARED_DEPTH_ARRAY,)) as pool:
+                    y_rows = [*range(y_size - 1, -1, -1)]
+                    pbar = iter(tqdm(y_rows, desc=_('Saving CSV table'), disable=quite))
+                    for rows in pool.imap(csv_rows_worker, y_rows, MULTIPROCESSING_BATCH):
                         next(pbar)
                         for x, y, z in rows:
                             if csv_yxz:
