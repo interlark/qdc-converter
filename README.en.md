@@ -10,10 +10,11 @@ Converter of ***.qdc** *(Garmin QuickDraw Contours)* files into ***.csv** *(CSV 
 
 ![screenshot](https://raw.githubusercontent.com/interlark/qdc-converter/main/assets/screenshot-en.png)
 
-# Install
-- Download [release](https://github.com/interlark/qdc-converter/releases/latest) and run.
+## Installation
+### Single file build
+Download [release](https://github.com/interlark/qdc-converter/releases/latest).
 
-- Install from PyPI:
+### Install from PyPI
 ```bash
 # CLI
 pip install qdc-converter
@@ -21,7 +22,7 @@ pip install qdc-converter
 pip install qdc-converter[gui]
 ```
 
-- Install from repository:
+### Install from repository
 ```bash
 git clone https://github.com/interlark/qdc-converter
 cd qdc-converter
@@ -31,7 +32,7 @@ python -m venv venv
 # Windows
 .\venv\Scripts\activate.bat
 # Linux, MacOS
-. venv/bin/active
+. venv/bin/activate
 
 # CLI
 pip install .
@@ -39,7 +40,7 @@ pip install .
 pip install .[gui]
 ```
 
-# Usage
+## Usage
 Base parameters: **-i**, **-o** and **-l**.
 
 * An example of converting folder ```Contours``` which contains ***.qdc** files inside into table ```export_table.csv``` with 3 columns ```X``` *(longitude in decimal degrees)*, ```Y``` *(latitude in decimal degrees)* и  ```Depth(m)``` *(depth in meters)*, using data layer L_**1**:
@@ -54,7 +55,7 @@ Base parameters: **-i**, **-o** and **-l**.
   The result raster could be loaded into many other GIS, like QGIS, etc... and get converted into more readable formats.
 
 
-# Parameters
+## Parameters
 ```bash
 qdc-converter --help
 ```

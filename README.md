@@ -10,10 +10,11 @@
 
 ![screenshot](https://raw.githubusercontent.com/interlark/qdc-converter/main/assets/screenshot-ru.png)
 
-# Установка
-- Скачать [релиз](https://github.com/interlark/qdc-converter/releases/latest) и запустить.
+## Установка
+### Установка одним файлом
+Скачать [релиз](https://github.com/interlark/qdc-converter/releases/latest).
 
-- Установка из PyPI:
+### Установка из PyPI
 ```bash
 # CLI
 pip install qdc-converter
@@ -21,7 +22,7 @@ pip install qdc-converter
 pip install qdc-converter[gui]
 ```
 
-- Установка из репозитория:
+### Установка из репозитория
 ```bash
 git clone https://github.com/interlark/qdc-converter
 cd qdc-converter
@@ -31,7 +32,7 @@ python -m venv venv
 # Windows
 .\venv\Scripts\activate.bat
 # Linux, MacOS
-. venv/bin/active
+. venv/bin/activate
 
 # CLI
 pip install .
@@ -39,7 +40,7 @@ pip install .
 pip install .[gui]
 ```
 
-# Использование
+## Использование
 Основные параметры: **-i**, **-o** и **-l**.
 
 * Пример конвертирования папки ```Contours``` с вложенными ***.qdc** файлами в таблицу ```export_table.csv``` с 3 полями ```X``` *(долгота в десятичных градусах)*, ```Y``` *(широта в десятичных градусах)* и  ```Depth(m)``` *(глубина в метрах)*, используя слой данных L_**1**:
@@ -54,7 +55,7 @@ pip install .[gui]
   Полученный растр можно загрузить во многие ГИС (например, QGIS) и сконвертировать в более быстрочитаемый формат.
 
 
-# Параметры
+## Параметры
 ```bash
 qdc-converter --help
 ```
