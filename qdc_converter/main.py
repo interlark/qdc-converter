@@ -1,4 +1,6 @@
 import multiprocessing as mp
+import os
+from contextlib import suppress
 
 import click
 from click_option_group import optgroup
@@ -15,7 +17,9 @@ if GUI_ENABLED:
 install_i18n()
 
 # Add multiprocessing support on Windows for Pyinstaller's builds.
-mp.freeze_support()
+if os.name == 'nt':
+    with suppress(WindowsError):
+        mp.freeze_support()
 
 
 @click.version_option(version=version)
