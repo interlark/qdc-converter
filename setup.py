@@ -21,6 +21,7 @@ deps = [
     'tqdm>=4.37.0',
     'click>=4.0.0',
     'click-option-group>=0.5.3',
+    'pebble>=4.6.0',
 ]
 
 

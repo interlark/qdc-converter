@@ -98,7 +98,7 @@ LAYER_PARAMETERS = {
 
 
 def run_cli(qdc_folder_path, output_path, layer, validity_codes, quite, x_correction, y_correction, z_correction,
-            csv_delimiter, csv_skip_headers, csv_yxz, message_queue=None, multithreaded=False):
+            csv_delimiter, csv_skip_headers, csv_yxz, multithreaded, message_queue=None):
     # Patch tqdm to duplicate messages up to the passed message queue.
     if message_queue:
         patch_tqdm(tqdm, message_queue)
@@ -109,7 +109,7 @@ def run_cli(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
         return run_cli(
             qdc_folder_path, output_path, layer, validity_codes, quite,
             x_correction, y_correction, z_correction,
-            csv_delimiter, csv_skip_headers, csv_yxz, message_queue, multithreaded
+            csv_delimiter, csv_skip_headers, csv_yxz, multithreaded, message_queue
         )
 
     try:

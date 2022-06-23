@@ -3,6 +3,7 @@ import importlib.util
 import os
 import sys
 import warnings
+from itertools import islice
 
 try:
     import PySimpleGUI as sg
@@ -60,6 +61,7 @@ def patch_tqdm(tqdm, message_queue):
     """
     original_update = tqdm.update
     original_close = tqdm.close
+    original_init = tqdm.__init__
 
     def new_update(tqdm_self, *args, **kwargs):
         original_update(tqdm_self, *args, **kwargs)
@@ -69,8 +71,14 @@ def patch_tqdm(tqdm, message_queue):
         message_queue.put(('#UpdateProgressBar', (tqdm_self.n, tqdm_self.total)))
         original_close(tqdm_self, *args, **kwargs)
 
+    def new_init(tqdm_self, *args, **kwargs):
+        original_init(tqdm_self, *args, **kwargs)
+        message_queue.put(('#UpdateProgressBarTitle', tqdm_self.desc))
+        message_queue.put(('#UpdateProgressBar', (tqdm_self.n, tqdm_self.total)))
+
     tqdm.update = new_update
     tqdm.close = new_close
+    tqdm.__init__ = new_init
 
 
 def get_files_recursively(root_path, exts):
@@ -108,3 +116,32 @@ def install_i18n():
                     locale_dir = locale_path
 
     gettext.install('messages', locale_dir)
+
+
+def chunks(iterable, n):
+    """Split iterable in batches."""
+    it_len = len(iterable)
+    for ndx in range(0, it_len, n):
+        yield iterable[ndx:min(ndx + n, it_len)]
+
+
+def window(iterable, n=2, with_trailing=True):
+    """Returns a sliding window.
+
+    Example:
+        list(window([1, 2, 3, 4, 5], 3))
+        =>
+        [(1, 2, 3), (2, 3, 4), (3, 4, 5), (4, 5), (5,)]
+    """
+    it = iter(iterable)
+    result = tuple(islice(it, n))
+    if len(result) <= n:
+        yield result
+    for elem in it:
+        result = result[1:] + (elem,)
+        yield result
+    if with_trailing:
+        result = result[1:]
+        while result:
+            yield result
+            result = result[1:]

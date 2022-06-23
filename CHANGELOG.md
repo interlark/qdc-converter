@@ -2,6 +2,15 @@
 
 ## [Невошедшее]
 
+## [2.5] - 23-06-2022
+### Добавлено
+- Оптимизация многопоточного кода
+- [GUI] Отображение название выполняемой задачи
+
+### Исправлено
+- Нерабочая многопоточность в сборках под Windows
+- Многопоточный экспорт Grid-растра
+
 ## [2.4] - 22-06-2022
 ### Добавлено
 - Многопоточность
@@ -29,7 +38,8 @@
 - Первая версия.
 
 
-[Невошедшее]: https://github.com/interlark/qdc-converter/compare/v2.4...HEAD
+[Невошедшее]: https://github.com/interlark/qdc-converter/compare/v2.5...HEAD
+[2.5]: https://github.com/interlark/qdc-converter/compare/v2.4...v2.5
 [2.4]: https://github.com/interlark/qdc-converter/compare/v2.3...v2.4
 [2.3]: https://github.com/interlark/qdc-converter/compare/v2.2...v2.3
 [2.2]: https://github.com/interlark/qdc-converter/compare/v2.1...v2.2

@@ -7,6 +7,7 @@ import PySimpleGUI as sg
 
 from .cli import run_cli
 from .utils import get_files_recursively, image_path
+from .version import version
 
 
 def run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correction,
@@ -34,7 +35,7 @@ def run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
     csv_skip_headers_title = t(_('Do not write header.'))
     csv_yxz_title = t(_('Change column order from X,Y,Z to Y,X,Z.'),)
     window_description = t(window_description)
-    window_title = t(window_title)
+    window_title = t(window_title) + f' (v{version})'
 
     # Window's layout
     layout = [
@@ -97,6 +98,7 @@ def run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
                 sg.Button(_('Cancel'), key='-Cancel-', button_color=('white', 'orange3'), visible=False),
             ]], pad=0),
             sg.Button(_('Quit'), key='-Quit-', button_color=('white', 'firebrick3')),
+            sg.Text(key='-ProgressBarTitle-')
         ],
     ]
 
@@ -112,6 +114,7 @@ def run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
     cancel_button = window['-Cancel-']
     convert_button = window['-Convert-']
     progress_bar = window['-ProgressBar-']
+    progress_bar_title = window['-ProgressBarTitle-']
 
     # IPC message queue
     message_queue = mp.Queue()
@@ -155,6 +158,10 @@ def run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
             current_value, max_value = values['#UpdateProgressBar']
             progress_bar.update(current_count=current_value, max=max_value)
 
+        elif event == '#UpdateProgressBarTitle':
+            new_title = values['#UpdateProgressBarTitle']
+            progress_bar_title.update(value=new_title)
+
         elif event == '-Cancel-':
             if converter_process_running():
                 converter_process.terminate()
@@ -190,14 +197,15 @@ def run_gui(qdc_folder_path, output_path, layer, validity_codes, quite, x_correc
             converter_process = mp.Process(target=run_cli, kwargs=args, daemon=False)
             converter_process.start()
 
-            # Restore buttons state on process finished
-            def restore_buttons():
+            # Restore state on process finished
+            def restore_state():
                 converter_process.join()
                 swap_buttons(False)
+                progress_bar_title.update(value='')
 
             # Reset progress bar
             progress_bar.update(current_count=0)
 
-            threading.Thread(target=restore_buttons, daemon=True).start()
+            threading.Thread(target=restore_state, daemon=True).start()
 
     window.Close()
