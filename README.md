@@ -8,7 +8,7 @@
 
 Конвертер ***.qdc** *(Garmin QuickDraw Contours)* в таблицу ***.csv** *(CSV таблица)* или ***.grd** *(Растр ESRI ASCII Grid)*
 
-![screenshot](https://raw.githubusercontent.com/interlark/qdc-converter/main/assets/screenshot-ru.png)
+![Screencast](https://user-images.githubusercontent.com/20641837/175391112-c11a74c1-5b84-444a-a2b7-ca611d933f36.gif)
 
 ## Установка
 ### Установка одним файлом
