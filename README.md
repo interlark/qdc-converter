@@ -4,7 +4,7 @@
 [![Tests](https://github.com/interlark/qdc-converter/actions/workflows/tests.yml/badge.svg)](https://github.com/interlark/qdc-converter/actions/workflows/tests.yml)
 [![PyPi version](https://badgen.net/pypi/v/qdc-converter)](https://pypi.org/project/qdc-converter)
 [![Supported Python versions](https://badgen.net/pypi/python/qdc-converter)](https://pypi.org/project/qdc-converter)
-[![PyPi license](https://badgen.net/pypi/license/qdc-converter)](https://pypi.org/project/qdc-converter)
+[![License](https://badgen.net/pypi/license/qdc-converter)](https://github.com/interlark/qdc-converter/blob/main/LICENSE)
 
 Конвертер ***.qdc** *(Garmin QuickDraw Contours)* в таблицу ***.csv** *(CSV таблица)* или ***.grd** *(Растр ESRI ASCII Grid)*
 
