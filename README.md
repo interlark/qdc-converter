@@ -1,6 +1,7 @@
 [Русский](https://github.com/interlark/qdc-converter/blob/main/README.md) | [English](https://github.com/interlark/qdc-converter/blob/main/README.en.md)
 
-# QDC Конвертер
+<h1>QDC Конвертер <a href="#"><img width="40px" src="https://user-images.githubusercontent.com/20641837/181224497-52a3bc1b-9e0e-4d12-a40c-da97e6e818ca.svg" alt="Logo" align="left"/></a></h1>
+
 [![Tests](https://github.com/interlark/qdc-converter/actions/workflows/tests.yml/badge.svg)](https://github.com/interlark/qdc-converter/actions/workflows/tests.yml)
 [![PyPi version](https://badgen.net/pypi/v/qdc-converter)](https://pypi.org/project/qdc-converter)
 [![Supported Python versions](https://badgen.net/pypi/python/qdc-converter)](https://pypi.org/project/qdc-converter)
@@ -20,24 +21,6 @@
 pip install qdc-converter
 # CLI + GUI
 pip install qdc-converter[gui]
-```
-
-### Установка из репозитория
-```bash
-git clone https://github.com/interlark/qdc-converter
-cd qdc-converter
-
-python -m venv venv
-
-# Windows
-.\venv\Scripts\activate.bat
-# Linux, MacOS
-. venv/bin/activate
-
-# CLI
-pip install .
-# CLI + GUI
-pip install .[gui]
 ```
 
 ## Использование
