@@ -25,13 +25,13 @@ if os.name == 'nt':
 @click.version_option(version=version)
 @click.command(help=_('QDC Converter.\n\nConverter of Garmin\'s QDC files into CSV or GRD.'))
 @optgroup.group(_('Main parameters'), help=_('Key parameters of the converter'))
-@optgroup.option('--qdc-folder-path', '-i', required=not(GUI_ENABLED),
+@optgroup.option('--qdc-folder-path', '-i', required=not GUI_ENABLED,
                  type=click.Path(exists=True, resolve_path=True, file_okay=False, dir_okay=True),
                  help=_('Path to folder with QuickDraw Contours (QDC) inside.'))
-@optgroup.option('--output-path', '-o', required=not(GUI_ENABLED),
+@optgroup.option('--output-path', '-o', required=not GUI_ENABLED,
                  type=click.Path(exists=False, resolve_path=True, file_okay=True, dir_okay=False),
                  help=_('Path to the result file (*.csv or *.grd).'))
-@optgroup.option('--layer', '-l', required=not(GUI_ENABLED),
+@optgroup.option('--layer', '-l', required=not GUI_ENABLED,
                  type=click.IntRange(0, 5), metavar='[0,1,2,3,4,5]',
                  help=_('Data layer (0 - Raw user data, 1 - Recommended).'))
 @optgroup.group(_('Correction parameters'), help=_('Corrections'))
