@@ -76,7 +76,7 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## Convert `.qcc` to `.qdc` files with Android phone.
+## Convert `.qcc` to `.qdc` files with Android phone
 If you have only `.qcc` file, you should convert it to `.qdc` files to use in `qdc-converter`.
 
 1. Install `Garmin ActiveCaptain` Android app.
