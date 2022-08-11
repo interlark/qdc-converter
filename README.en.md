@@ -75,3 +75,19 @@ Options:
   --version                       Show the version and exit.
   --help                          Show this message and exit.
 ```
+
+## Convert `.qcc` to `.qdc` files with Android phone.
+If you have only `.qcc` file, you should convert it to `.qdc` files to use in `qdc-converter`.
+
+1. Install `Garmin ActiveCaptain` Android app.
+    > https://play.google.com/store/apps/details?id=com.garmin.android.marine<br/>
+    > https://apk.support/download-app/com.garmin.android.marine
+
+2. Launch app, sign up and close it.
+
+2. Copy `.qcc` file to the phone path `/Android/data/com.garmin.android.marine/files/Garmin/esm/internal0/`
+
+3. Launch `Garmin ActiveCaptain` app and wait until it converts the source `.qcc` file to `.qdc` files.
+    > The process usually takes less than a minute.
+
+4. Copy folder with `.qdc` files from phone path `/Android/data/com.garmin.android.marine/files/Garmin/esm/internal0/Garmin/Quickdraw/Contours/C/` to your computer.
