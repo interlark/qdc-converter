@@ -2,6 +2,10 @@
 
 ## [Невошедшее]
 
+## [2.6] - 12-02-2023
+### Добавлено
+- Совместимость с Windows 7, Windows 8.
+
 ## [2.5] - 23-06-2022
 ### Добавлено
 - Оптимизация многопоточного кода
@@ -38,7 +42,8 @@
 - Первая версия.
 
 
-[Невошедшее]: https://github.com/interlark/qdc-converter/compare/v2.5...HEAD
+[Невошедшее]: https://github.com/interlark/qdc-converter/compare/v2.6...HEAD
+[2.6]: https://github.com/interlark/qdc-converter/compare/v2.5...v2.6
 [2.5]: https://github.com/interlark/qdc-converter/compare/v2.4...v2.5
 [2.4]: https://github.com/interlark/qdc-converter/compare/v2.3...v2.4
 [2.3]: https://github.com/interlark/qdc-converter/compare/v2.2...v2.3
